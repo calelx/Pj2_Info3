@@ -1,0 +1,10 @@
+a F
+b F
+aaaac T
+c F
+aab F
+aaaaabbb F
+bbbbc T
+bc T
+ac T
+acc F
