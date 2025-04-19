@@ -76,7 +76,7 @@ public class AFN {
             reader.close();
 
             // Establecer el estado inicial
-            estadoInicial = 1; // Según el formato, el estado inicial siempre es 1
+            estadoInicial = 1; //  el estado inicial siempre es 1
 
         } catch (Exception e) {
             System.out.println("Error al leer el archivo: " + e.getMessage());
@@ -95,6 +95,7 @@ public class AFN {
 
     private boolean verificarAceptacion(int estadoActual, String string, int indice, Set<Integer> visitados) {
         // Si hemos consumido toda la cuerda, verificamos si estamos en un estado final
+        //verificarEstadoFinal( estadoActual,  string,  indice, visitados);
         if (indice == string.length()) {
             if (estadosFinales.contains(estadoActual)) {
                 return true;
@@ -144,6 +145,7 @@ public class AFN {
         de texto que contenga los datos de un AFD segun las especificaciones
         del proyecto.
     */
+    
     public void toAFD(String afdPath) {
         try {
             Map<Set<Integer>, Map<Character, Set<Integer>>> afdTransiciones = new HashMap<>();
@@ -243,6 +245,7 @@ public class AFN {
         }
         return resultado;
     }
+    
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
