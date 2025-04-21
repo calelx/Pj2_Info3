@@ -263,12 +263,12 @@ public class AFN {
         } else {
             BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(System.in));
             String cuerda;
-            System.out.println("Ingrese una cuerda (o una cuerda vacía para salir):");
+            System.out.println("Ingrese una cuerda (o una cuerda vacia si dese  salir):");
             while (!(cuerda = reader.readLine()).isEmpty()) {
                 if (afn.accept(cuerda)) {
-                    System.out.println("Aceptada");
+                    System.out.println("Cuerda Aceptada");
                 } else {
-                    System.out.println("Rechazada");
+                    System.out.println("Cuerda Rechazada");
                 }
             }
         }
