@@ -1,8 +1,8 @@
 /*
-    Utilice esta clase para guardar la informacion de su
-    AFN. NO DEBE CAMBIAR LOS NOMBRES DE LA CLASE NI DE LOS 
-    METODOS que ya existen, sin embargo, usted es libre de 
-    agregar los campos y metodos que desee.
+	Utilice esta clase para guardar la informacion de su
+	AFN. NO DEBE CAMBIAR LOS NOMBRES DE LA CLASE NI DE LOS 
+	METODOS que ya existen, sin embargo, usted es libre de 
+	agregar los campos y metodos que desee.
 */
 
 import java.io.BufferedReader;
@@ -24,12 +24,12 @@ public class AFN {
     Set<Character> alfabeto = new HashSet<>();
 
     /*
-        Implemente el constructor de la clase AFN
-        que recibe como argumento un string que 
-        representa el path del archivo que contiene
-        la informacion del AFN (i.e. "Documentos/archivo.AFN").
-        Puede utilizar la estructura de datos que desee
-    */
+		Implemente el constructor de la clase AFN
+		que recibe como argumento un string que 
+		representa el path del archivo que contiene
+		la informacion del AFN (i.e. "Documentos/archivo.AFN").
+		Puede utilizar la estructura de datos que desee
+	*/
     public AFN(String path) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
@@ -64,8 +64,8 @@ public class AFN {
                         } else { // Transiciones normales
                             char simbolo = simbolos[fila - 1].charAt(0);
                             transiciones.computeIfAbsent(columna, k -> new HashMap<>())
-                                        .computeIfAbsent(simbolo, k -> new ArrayList<>())
-                                        .add(estado);
+                                    .computeIfAbsent(simbolo, k -> new ArrayList<>())
+                                    .add(estado);
                         }
                     }
                 }
@@ -76,7 +76,7 @@ public class AFN {
             reader.close();
 
             // Establecer el estado inicial
-            estadoInicial = 1; //  el estado inicial siempre es 1
+            estadoInicial = 1; // el estado inicial siempre es 1
 
         } catch (Exception e) {
             System.out.println("Error al leer el archivo: " + e.getMessage());
@@ -84,39 +84,57 @@ public class AFN {
     }
 
     /*
-        Implemente el metodo accept, que recibe como argumento
-        un String que representa la cuerda a evaluar, y devuelve
-        un boolean dependiendo de si la cuerda es aceptada o no 
-        por el AFN. Recuerde lo aprendido en el proyecto 1.
-    */
+		Implemente el metodo toAFD. Este metodo debe generar un archivo
+		de texto que contenga los datos de un AFD segun las especificaciones
+		del proyecto.
+	*/
     public boolean accept(String string) {
         return verificarAceptacion(estadoInicial, string, 0, new HashSet<>());
     }
 
     private boolean verificarAceptacion(int estadoActual, String string, int indice, Set<Integer> visitados) {
-        // Si hemos consumido toda la cuerda, verificamos si estamos en un estado final
-        //verificarEstadoFinal( estadoActual,  string,  indice, visitados);
+     
+   // Si hemos consumido toda la cuerda, verificamos si estamos en un estado final
         if (indice == string.length()) {
-            if (estadosFinales.contains(estadoActual)) {
-                return true;
-            }
-            // Verificar transiciones lambda desde el estado actual
-            if (transicionesLambda.containsKey(estadoActual)) {
-                for (int estadoDestino : transicionesLambda.get(estadoActual)) {
-                    if (!visitados.contains(estadoDestino)) {
-                        visitados.add(estadoDestino);
-                        if (verificarAceptacion(estadoDestino, string, indice, visitados)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
+            return verificarEstadoFinal(estadoActual, string, indice, visitados);
         }
 
         char simboloActual = string.charAt(indice);
 
         // Verificar transiciones normales
+        if (verificarTransicionesNormales(estadoActual, simboloActual, string, indice)) {
+            return true;
+        }
+
+        // Verificar transiciones lambda
+        if (verificarTransicionesLambda(estadoActual, string, indice, visitados)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Función para verificar si estamos en un estado final o si hay transiciones
+    // lambda
+    private boolean verificarEstadoFinal(int estadoActual, String string, int indice, Set<Integer> visitados) {
+        if (estadosFinales.contains(estadoActual)) {
+            return true;
+        }
+        if (transicionesLambda.containsKey(estadoActual)) {
+            for (int estadoDestino : transicionesLambda.get(estadoActual)) {
+                if (!visitados.contains(estadoDestino)) {
+                    visitados.add(estadoDestino);
+                    if (verificarAceptacion(estadoDestino, string, indice, visitados)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    // Función para verificar transiciones normales
+    private boolean verificarTransicionesNormales(int estadoActual, char simboloActual, String string, int indice) {
         if (transiciones.containsKey(estadoActual) && transiciones.get(estadoActual).containsKey(simboloActual)) {
             for (int estadoDestino : transiciones.get(estadoActual).get(simboloActual)) {
                 if (verificarAceptacion(estadoDestino, string, indice + 1, new HashSet<>())) {
@@ -124,8 +142,11 @@ public class AFN {
                 }
             }
         }
+        return false;
+    }
 
-        // Verificar transiciones lambda
+    // Función para verificar transiciones lambda
+    private boolean verificarTransicionesLambda(int estadoActual, String string, int indice, Set<Integer> visitados) {
         if (transicionesLambda.containsKey(estadoActual)) {
             for (int estadoDestino : transicionesLambda.get(estadoActual)) {
                 if (!visitados.contains(estadoDestino)) {
@@ -139,13 +160,16 @@ public class AFN {
 
         return false;
     }
-
-    /*
-        Implemente el metodo toAFD. Este metodo debe generar un archivo
-        de texto que contenga los datos de un AFD segun las especificaciones
-        del proyecto.
-    */
     
+    /* 
+		El metodo main debe recibir como primer argumento el path
+		donde se encuentra el archivo ".afd" y debe empezar a evaluar 
+		cuerdas ingresadas por el usuario una a una hasta leer una cuerda vacia (""),
+		en cuyo caso debe terminar. Tiene la libertad de implementar este metodo
+		de la forma que desee. Si se envia la bandera "-to-afd", entonces en vez de
+		evaluar, debe generar un archivo .afd
+	*/
+
     public void toAFD(String afdPath) {
         try {
             Map<Set<Integer>, Map<Character, Set<Integer>>> afdTransiciones = new HashMap<>();
@@ -247,23 +271,43 @@ public class AFN {
     }
 
 
+
+    /*
+     * Implemente el metodo main. Este metodo debe recibir como argumento
+     * el path del archivo que contiene la informacion del AFN (i.e.
+     * "Documentos/archivo.AFN"). Si se recibe un segundo argumento "-to-afd"
+     * seguido de un path, el programa debe generar un archivo AFD en el
+     * path indicado.
+     */
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             System.out.println("Uso: java AFN <archivo.afn> [-to-afd <archivo.afd>]");
             return;
         }
-
+    
         String afnPath = args[0];
         AFN afn = new AFN(afnPath);
-
-        if (args.length == 3 && args[1].equals("-to-afd")) {
-            String afdPath = args[2];
+    
+        if (args.length == 3 && "-to-afd".equals(args[1])) {
+            generarAFD(afn, args[2]);
+        } else {
+            evaluarCadenas(afn);
+        }
+    }
+    
+    private static void generarAFD(AFN afn, String afdPath) {
+        try {
             afn.toAFD(afdPath);
             System.out.println("Archivo AFD generado en: " + afdPath);
-        } else {
-            BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(System.in));
+        } catch (Exception e) {
+            System.out.println("Error al generar el archivo AFD: " + e.getMessage());
+        }
+    }
+    
+    private static void evaluarCadenas(AFN afn) {
+        try (BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(System.in))) {
             String cuerda;
-            System.out.println("Ingrese una cuerda (o una cuerda vacia si dese  salir):");
+            System.out.println("Ingrese una cuerda (o una cuerda vacía para salir):");
             while (!(cuerda = reader.readLine()).isEmpty()) {
                 if (afn.accept(cuerda)) {
                     System.out.println("Cuerda Aceptada");
@@ -271,6 +315,8 @@ public class AFN {
                     System.out.println("Cuerda Rechazada");
                 }
             }
+        } catch (Exception e) {
+            System.out.println("Error al evaluar las cadenas: " + e.getMessage());
         }
     }
 }
