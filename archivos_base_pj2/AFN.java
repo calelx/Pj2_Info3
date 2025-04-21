@@ -245,7 +245,7 @@ public class AFN {
         }
         return resultado;
     }
-    
+
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
